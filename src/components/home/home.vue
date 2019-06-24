@@ -16,7 +16,7 @@
   <el-container>
     <el-aside width="200px" class="aside">
 
-      <el-menu :unique-opened='true'>
+      <el-menu :unique-opened='true' :router="true">
         <!-- 1 -->
         <el-submenu index="1">
           <template slot="title">
@@ -24,7 +24,7 @@
             <span>用户管理</span>
           </template>
           <el-menu-item-group>
-            <el-menu-item index="1-1">
+            <el-menu-item index="users">
               <i class="el-icon-menu"></i>
               <span>用户列表</span>
             </el-menu-item>
@@ -96,7 +96,9 @@
         </el-submenu>
       </el-menu>
     </el-aside>
-    <el-main class="main">Main</el-main>
+    <el-main class="main">
+      <router-view style="height: 100%"></router-view>
+    </el-main>
   </el-container>
 </el-container>
 </template>
@@ -104,18 +106,22 @@
 <script>
 export default {
   name: 'Home',
-  beforeCreate () {
+  beforeCreate() {
     const token = localStorage.getItem('token')
 
-    if(!token) {
-      this.$router.push({name:'login'})
+    if (!token) {
+      this.$router.push({
+        name: 'login'
+      })
     }
   },
   methods: {
-    handleSignout () {
+    handleSignout() {
       localStorage.clear()
       this.$message.success('退出成功')
-      this.$router.push({name:'login'})
+      this.$router.push({
+        name: 'login'
+      })
     }
   }
 }
@@ -136,7 +142,9 @@ export default {
 
 .main {
   background-color: #e9eef3;
+  height: 100%;
 }
+
 
 /*头部样式 */
 .header .middle {
