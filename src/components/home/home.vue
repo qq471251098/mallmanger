@@ -9,7 +9,7 @@
           <h3>电商后台管理系统</h3>
         </el-col>
         <el-col :span="2">
-          <a href="#" class="loginOut">退出</a>
+          <a href="#" class="loginOut" @click.prevent="handleSignout()">退出</a>
         </el-col>
     </el-row>
   </el-header>
@@ -108,6 +108,13 @@ export default {
     const token = localStorage.getItem('token')
 
     if(!token) {
+      this.$router.push({name:'login'})
+    }
+  },
+  methods: {
+    handleSignout () {
+      localStorage.clear()
+      this.$message.success('退出成功')
       this.$router.push({name:'login'})
     }
   }
