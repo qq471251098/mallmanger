@@ -103,7 +103,14 @@
 
 <script>
 export default {
-  name: 'Home'
+  name: 'Home',
+  beforeCreate () {
+    const token = localStorage.getItem('token')
+
+    if(!token) {
+      this.$router.push({name:'login'})
+    }
+  }
 }
 </script>
 
