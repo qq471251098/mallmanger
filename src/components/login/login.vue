@@ -25,42 +25,43 @@ export default {
     }
   },
   methods: {
-    handleLogin () {
-      this.$http.post('login',this.fromDate).then( (res) => {
-        const {
-          data,
-          meta: {msg, status}
-        } = res.data
+    async handleLogin() {
+      const res = await this.$http.post('login', this.fromDate)
+      const {
+        data,
+        meta: {msg, status}
+      } = res.data
 
-        if (status === 200) {
-          this.$message.success(msg)
-        } else {
-          this.$message.warning(msg)
-        }
-      })
+      if (status === 200) {
+        this.$router.push({
+          name: 'home'
+        })
+        this.$message.success(msg)
+      } else {
+        this.$message.warning(msg)
+      }
     }
   }
 }
 </script>
 
 <style>
-  .login-wrap{
-    height: 100%;
-    background-color: #324152;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+.login-wrap {
+  height: 100%;
+  background-color: #324152;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-  .login-wrap .login-form {
-    padding: 30px;
-    width: 400px;
-    background-color: #fff;
-    border-radius: 10px;
-  }
+.login-wrap .login-form {
+  padding: 30px;
+  width: 400px;
+  background-color: #fff;
+  border-radius: 10px;
+}
 
-  .login-wrap .login-btn {
-    width: 100%;
-  }
-
+.login-wrap .login-btn {
+  width: 100%;
+}
 </style>
