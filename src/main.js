@@ -8,6 +8,7 @@ import '../src/assets/css/reset.css'
 import App from './App'
 import router from './router'
 import moment from 'moment'
+import MyBread from './components/cuscom/myBread.vue'
 
 Vue.use(ElementUI)
 Vue.use(MyServerHttp)
@@ -17,6 +18,9 @@ Vue.filter('fmtdata', (v) => {
   return moment(v).format('YYYY-MM-DD')
 })
 
+// eslint-disable-next-line spaced-comment
+//全局自定义组件
+Vue.component(MyBread.name, MyBread)
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

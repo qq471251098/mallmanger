@@ -1,11 +1,7 @@
 <template>
 <el-card class="box-card">
   <!--1.面包屑-->
-  <el-breadcrumb separator-class="el-icon-arrow-right">
-    <el-breadcrumb-item>首页</el-breadcrumb-item>
-    <el-breadcrumb-item>用户管理</el-breadcrumb-item>
-    <el-breadcrumb-item>用户列表</el-breadcrumb-item>
-  </el-breadcrumb>
+  <my-bread leve1='用户管理' leve2='用户列表'></my-bread>
   <!--2.输入框-->
   <el-row class="searchRow">
     <el-col>
@@ -147,8 +143,6 @@ export default {
     },
     //获取用户数据请求方法
     async getUserList() {
-      const AUTH_TOKEN = localStorage.getItem('token')
-      this.$http.defaults.headers.common['Authorization'] = AUTH_TOKEN
       const res = await this.$http.get('users', {
         params: {
           query: this.query,
