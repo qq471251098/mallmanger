@@ -24,14 +24,14 @@
     <el-table-column label="创建时间"> <template slot-scope="scope"> {{ scope.row.create_time | fmtdata }} </template> </el-table-column>
     <el-table-column label="用户状态">
       <template slot-scope="scope">
-        <el-switch v-model="scope.row.mg_state"></el-switch>
+        <el-switch v-model="scope.row.mg_state" @change="changeMgState(scope.row)"></el-switch>
       </template>
     </el-table-column>
     <el-table-column label="操作">
       <template slot-scope="scope">
-        <el-button size="mini" plain type="primary" icon="el-icon-edit" circle @click="showEditUserDia(scope.row.id)"></el-button>
+        <el-button size="mini" plain type="primary" icon="el-icon-edit" circle @click="showEditUserDia(scope.row)"></el-button>
         <el-button size="mini" plain type="danger" icon="el-icon-delete" circle @click="showDeleUserMsgBox(scope.row.id)"></el-button>
-        <el-button size="mini" plain type="success" icon="el-icon-check" circle></el-button>
+        <el-button size="mini" plain type="success" icon="el-icon-check" circle @click="showCheckUserDia(scope.row)"></el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -65,7 +65,7 @@
   <el-dialog title="编辑用户" :visible.sync="showEditUser">
     <el-form :model="form">
       <el-form-item label="用户名" label-width="200px">
-        <el-input v-model="form.username" autocomplete="off"></el-input>
+        <el-input v-model="form.username" autocomplete="off" disabled></el-input>
       </el-form-item>
       <el-form-item label="邮箱" label-width="200px">
         <el-input v-model="form.email" autocomplete="off"></el-input>
@@ -76,9 +76,25 @@
     </el-form>
     <div slot="footer" class="dialog-footer">
       <el-button @click="showEditUser = false">取 消</el-button>
-      <el-button type="primary" @click="showEditUser = false">确 定</el-button>
+      <el-button type="primary" @click="editUser()">确 定</el-button>
     </div>
   </el-dialog>
+  <!--分配角色的对话框-->
+  <el-dialog title="分配角色" :visible.sync="showRolUser">
+  <el-form :model="form">
+    <el-form-item label="用户名" label-width="200px">{{currUserName}}</el-form-item>
+    <el-form-item label="角色" label-width="200px">
+      <el-select v-model="currRoleId">
+        <el-option label="请选择" :value="-1"></el-option>
+        <el-option v-for="(item,i) in roles" :key="i" :label="item.roleName" :value="item.id"></el-option>
+      </el-select>
+    </el-form-item>
+  </el-form>
+  <div slot="footer" class="dialog-footer">
+    <el-button @click="showRolUser = false">取 消</el-button>
+    <el-button type="primary" @click="setRol()">确 定</el-button>
+  </div>
+</el-dialog>
 </el-card>
 </template>
 
@@ -95,7 +111,7 @@ export default {
       //当前页数
       pagenum: 1,
       //每页条数
-      pagesize: 2,
+      pagesize: 5,
       //总条数
       total: 0,
       //添加对话框的属性
@@ -103,7 +119,15 @@ export default {
       //添加用户的表单数据
       form: {username: '', password: '', email: '', mobile: ''},
       //编辑用户的对话框属性
-      showEditUser: false
+      showEditUser: false,
+      //分配角色对话框
+      showRolUser: false,
+      //分配角色
+      currRoleId: -1,
+      currUserId: -1,
+      currUserName: '',
+      //保存所有的角色数据
+      roles:[]
     }
   },
   created() {
@@ -132,7 +156,6 @@ export default {
           pagesize: this.pagesize
         }
       })
-      console.log(res)
       const {
         data: {
           users,
@@ -161,12 +184,12 @@ export default {
     //显示添加用户按钮
     showAddUserDia() {
       this.showAddUser = true;
+      this.form = {}
     },
     //发送添加用户的请求
     async addUser () {
       this.showAddUser = false
       const res = await this.$http.post('users',this.form)
-      console.log(res)
       const {data,meta:{status,msg}} = res.data
       if(status === 201) {
         this.$message.success(msg)
@@ -184,7 +207,6 @@ export default {
           type: 'warning'
         }).then( async () => {
           const res = await this.$http.delete(`users/${userId}`)
-          console.log(res)
           if (res.data.meta.status === 200) {
             this.pagenum = 1
             this.getUserList()
@@ -201,8 +223,37 @@ export default {
         })
     },
     //点击编辑按钮
-    showEditUserDia (userId) {
+    showEditUserDia (user) {
       this.showEditUser = true
+      this.form = user
+    },
+    //编辑用户发送请求
+    async editUser () {
+      this.showEditUser = false
+      const res = await this.$http.put(`users/${this.form.id}`,this.form)
+      this.getUserList()
+    },
+    //改变用户状态
+    async changeMgState(user) {
+      const res = await this.$http.put(`users/${user.id}/state/${user.mg_state}`)
+    },
+    //打开权限设置对话框
+    async showCheckUserDia (user) {
+      this.currUserName = user.username
+      this.currUserId = user.id
+      //获取所有角色
+      const res1 = await this.$http.get(`roles`)
+      this.roles = res1.data.data
+      //获取当前用户角色id
+      const res = await this.$http.get(`users/${user.id}`)
+      this.currRoleId = res.data.data.rid
+      this.showRolUser = true
+    },
+    //设置角色
+    async setRol () {
+      const res = await this.$http.put(`users/${this.currUserId}/role`,{rid:this.currRoleId})
+      this.$message.success(res.data.meta.msg)
+      this.showRolUser = false
     }
   }
 }
